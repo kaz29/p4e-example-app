@@ -312,7 +312,7 @@ return [
             "port" => env('DB_PORT', 5432),
             "username" => env('DB_USER'),
             "password" => env('DB_PASSWORD'),
-            "database" => env('DB_NAME'),
+            "database" => env('DB_NAME_TEST'),
             //'encoding' => 'utf8mb4',
             "encoding" => env('DB_ENCODING', 'UTF8'),
             'timezone' => 'UTC',

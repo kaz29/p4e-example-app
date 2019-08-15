@@ -14,4 +14,4 @@ RUN set -ex \
     && ln -sfT /dev/stdout "$APACHE_LOG_DIR/app-access.log" \
     && a2ensite 000-default
 
-WORKDIR /srv/app
+WORKDIR /srv/cms

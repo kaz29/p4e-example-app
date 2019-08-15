@@ -1,0 +1,41 @@
+version: '3.1'
+
+services:
+  p4e-database:
+    container_name: p4e-database
+    image: postgres:11.5-alpine
+    ports:
+      - '5432:5432'
+    volumes:
+      - p4e-database-data:/var/lib/postgresql/data:cached
+    environment:
+      POSTGRES_PASSWORD: "passw0rd"
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=ja_JP.UTF-8"
+      POSTGRES_USER: "webapp"
+
+  p4e-app:
+    container_name: p4e-app
+    build: 
+      context: ./app
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - p4e-database
+    ports:
+      - '80:80'
+    environment:
+      APP_ENV: development
+      DB_HOST: p4e-database
+      DB_USER: webapp
+      DB_PASSWORD: passw0rd
+      DB_NAME: webapp
+      DB_NAME_TEST: webapp_test
+      DB_PORT: 5432
+      DB_ENCODING: UTF8
+      DB_TIMEZONE: UTC
+    volumes:
+      - ./app:/srv:cached
+
+volumes:
+  p4e-database-data:
+    external:
+      name: p4e-database-data

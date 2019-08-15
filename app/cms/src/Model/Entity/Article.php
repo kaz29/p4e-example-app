@@ -30,14 +30,8 @@ class Article extends Entity
      * @var array
      */
     protected $_accessible = [
-        'user_id' => true,
-        'title' => true,
-        'slug' => true,
-        'body' => true,
-        'published' => true,
-        'created' => true,
-        'modified' => true,
-        'user' => true,
-        'tags' => true
+        '*' => true,
+        'id' => false,
+        'slug' => false,
     ];
 }

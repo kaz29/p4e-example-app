@@ -5,6 +5,7 @@ use Cake\Database\Connection;
 use Cake\Database\Driver\Postgres;
 use Cake\Error\ExceptionRenderer;
 use Cake\Log\Engine\FileLog;
+use Cake\Log\Engine\ConsoleLog;
 use Cake\Mailer\Transport\MailTransport;
 
 return [
@@ -326,7 +327,7 @@ return [
      */
     'Log' => [
         'debug' => [
-            'className' => FileLog::class,
+            'className' => env('APP_ENV') === 'development' ? FileLog::class: ConsoleLog::class,
             'path' => LOGS,
             'file' => 'debug',
             'url' => env('LOG_DEBUG_URL', null),
@@ -334,7 +335,7 @@ return [
             'levels' => ['notice', 'info', 'debug'],
         ],
         'error' => [
-            'className' => FileLog::class,
+            'className' => env('APP_ENV') === 'development' ? FileLog::class: ConsoleLog::class,
             'path' => LOGS,
             'file' => 'error',
             'url' => env('LOG_ERROR_URL', null),
@@ -343,7 +344,7 @@ return [
         ],
         // To enable this dedicated query log, you need set your datasource's log flag to true
         'queries' => [
-            'className' => FileLog::class,
+            'className' => env('APP_ENV') === 'development' ? FileLog::class: ConsoleLog::class,
             'path' => LOGS,
             'file' => 'queries',
             'url' => env('LOG_QUERIES_URL', null),

@@ -9,7 +9,27 @@
 $ docker volume create --name=p4e-database-data
 ```
 
+## 起動方法
+
+```
+$ docker-compose up -d
+```
+
+### テストの実行
+
+#### 前準備(初回のみ)
+
 ```
 /// テスト用データベースの作成
-$ p4e-database createdb -U webapp webapp_test
+$ docker exec -i p4e-database createdb -U webapp webapp_test
+/// composer install
+$ docker exec -i p4e-app composer install --dev
+/// データベースのマイグレーション
+$ docker exec -i p4e-app /bin/bash -c "./bin/cake migrations migrate"
+```
+
+#### テストの実行
+
+```
+$ docker exec -i p4e-app /srv/cms/vendor/bin/phpunit
 ```

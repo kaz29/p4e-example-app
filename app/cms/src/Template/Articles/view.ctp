@@ -10,6 +10,7 @@
         <li><?= $this->Html->link(__('Edit Article'), ['action' => 'edit', $article->id]) ?> </li>
         <li><?= $this->Form->postLink(__('Delete Article'), ['action' => 'delete', $article->id], ['confirm' => __('Are you sure you want to delete # {0}?', $article->id)]) ?> </li>
         <li><?= $this->Html->link(__('List Articles'), ['action' => 'index']) ?> </li>
+        <li><?= $this->Html->link(__('List Tags'), ['controller' => 'Tags', 'action' => 'index']) ?></li>
     </ul>
 </nav>
 <div class="articles view large-9 medium-8 columns content">

@@ -8,6 +8,7 @@
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
         <li><?= $this->Html->link(__('List Articles'), ['action' => 'index']) ?> </li>
+        <li><?= $this->Html->link(__('List Tags'), ['controller' => 'Tags', 'action' => 'index']) ?></li>
     </ul>
 </nav>
 <div class="articles view large-9 medium-8 columns content">

@@ -29,6 +29,7 @@ class ArticlesTableTest extends TestCase
         'app.Users',
         'app.Tags',
         'app.Articles',
+        'app.ArticlesTags',
     ];
 
     /**
@@ -196,5 +197,53 @@ class ArticlesTableTest extends TestCase
         $result = $this->Articles->save($entity);
         $this->assertNotFalse($result);
         $this->assertInstanceOf(Article::class, $result, '重複しないタイトルの場合追加できること');
+    }
+
+    public function testBuildTags()
+    {
+        Fabricate::create('Users', [
+            'email' => 'foo@example.com',
+            'password' => 'foobarbaz',
+        ]);
+
+        $data = [
+            'user_id' => 1,
+            'title' => 'Test title 001',
+            'body' => 'Test body 001',
+            'published' => false,
+            'tag_string' => 'tag1, tag2',
+        ];
+        $entity = $this->Articles->newEntity($data);
+        $result = $this->Articles->save($entity);
+        $this->assertNotFalse($result);
+        $this->assertInstanceOf(Article::class, $result);
+
+        $result = $this->Articles->get(1, ['contain' => 'Tags']);
+        $this->assertInstanceOf(Article::class, $result);
+        $this->assertCount(2, $result->tags);
+        $this->assertEquals('tag1, tag2', $result->tag_string);
+
+        $entity = $this->Articles->patchEntity($result, ['tag_string' => 'tag1, tag2, tag3']);
+        $result = $this->Articles->save($entity);
+        $this->assertNotFalse($result);
+        $this->assertInstanceOf(Article::class, $result);
+
+        $result = $this->Articles->get(1, ['contain' => 'Tags']);
+        $this->assertInstanceOf(Article::class, $result);
+        $this->assertCount(3, $result->tags);
+        $this->assertEquals('tag1, tag2, tag3', $result->tag_string);
+
+        $entity = $this->Articles->patchEntity($result, ['tag_string' => 'tag1']);
+        $result = $this->Articles->save($entity);
+        $this->assertNotFalse($result);
+        $this->assertInstanceOf(Article::class, $result);
+
+        $result = $this->Articles->get(1, ['contain' => 'Tags']);
+        $this->assertInstanceOf(Article::class, $result);
+        $this->assertCount(1, $result->tags);
+        $this->assertEquals('tag1', $result->tag_string);
+
+        $result = $this->Articles->Tags->find()->all()->count();
+        $this->assertEquals(3, $result);
     }
 }

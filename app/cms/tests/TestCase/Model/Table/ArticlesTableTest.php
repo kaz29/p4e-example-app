@@ -246,4 +246,34 @@ class ArticlesTableTest extends TestCase
         $result = $this->Articles->Tags->find()->all()->count();
         $this->assertEquals(3, $result);
     }
+
+    public function testFindTagged()
+    {
+        Fabricate::create('Users', [
+            'email' => 'foo@example.com',
+            'password' => 'foobarbaz',
+        ]);
+
+        Fabricate::create('Articles', [
+            'user_id' => 1,
+            'title' => 'Test title 001',
+            'body' => 'Test body 001',
+            'published' => false,
+            'tag_string' => 'tag1, tag2',
+        ]);
+
+        Fabricate::create('Articles', [
+            'user_id' => 1,
+            'title' => 'Test title 002',
+            'body' => 'Test body 002',
+            'published' => false,
+            'tag_string' => 'tag1, tag3',
+        ]);
+
+        $result = $this->Articles->find('tagged', ['tags' => ['tag1']])->all();
+        $this->assertCount(2, $result);
+
+        $result = $this->Articles->find('tagged', ['tags' => ['tag3']])->all();
+        $this->assertCount(1, $result);
+    }
 }

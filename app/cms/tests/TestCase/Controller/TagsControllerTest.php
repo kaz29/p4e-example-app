@@ -131,6 +131,18 @@ class TagsControllerTest extends TestCase
         $data = [
             'title' => 'Test title 001',
         ];
+
+        $this->enableCsrfToken();
+        $this->get('/tags/add');
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/users/login');
+
+        $this->enableCsrfToken();
+        $this->post('/tags/add', $data);
+        $this->assertResponseCode(302);
+        $this->assertRedirect('/users/login');
+
+        $this->session(['Auth' => ['User' => ['id' => 1]]]);
         $this->enableCsrfToken();
         $this->post('/tags/add', $data);
         $this->assertResponseCode(302);
@@ -154,6 +166,18 @@ class TagsControllerTest extends TestCase
         $data = [
             'title' => 'Test title 001update',
         ];
+
+        $this->enableCsrfToken();
+        $this->get('/tags/edit/1');
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/users/login');
+
+        $this->enableCsrfToken();
+        $this->put('/tags/edit/1', $data);
+        $this->assertResponseCode(302);
+        $this->assertRedirect('/users/login');
+
+        $this->session(['Auth' => ['User' => ['id' => 1]]]);
         $this->enableCsrfToken();
         $this->put('/tags/edit/1', $data);
         $this->assertResponseCode(302);
@@ -174,6 +198,12 @@ class TagsControllerTest extends TestCase
             'title' => 'Test title 001',
         ]);
 
+        $this->enableCsrfToken();
+        $this->post('/tags/delete/1');
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/users/login');
+
+        $this->session(['Auth' => ['User' => ['id' => 1]]]);
         $this->enableCsrfToken();
         $this->post('/tags/delete/1');
         $this->assertResponseCode(302);

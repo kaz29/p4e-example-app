@@ -133,7 +133,8 @@ class ArticlesControllerTest extends TestCase
     public function testAdd()
     {
         $this->get('/articles/add');
-        $this->assertResponseCode(200);
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/users/login');
 
         $data = [
             'title' => 'Test title 001',
@@ -141,6 +142,17 @@ class ArticlesControllerTest extends TestCase
             'published' => false,
             'tag_string' => 'tag1, tag2'
         ];
+
+        $this->enableCsrfToken();
+        $this->post('/articles/add');
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/users/login');
+
+        $this->session(['Auth' => ['User' => ['id' => 1]]]);
+        $this->get('/articles/add');
+        $this->assertResponseCode(200);
+
+        $this->session(['Auth' => ['User' => ['id' => 1]]]);
         $this->enableCsrfToken();
         $this->post('/articles/add', $data);
         $this->assertResponseCode(302);
@@ -159,6 +171,10 @@ class ArticlesControllerTest extends TestCase
      */
     public function testEdit()
     {
+        $this->get('/articles/edit/1');
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/users/login');
+
         Fabricate::create('Articles', [
             'user_id' => 1,
             'title' => 'Test title 001',
@@ -173,6 +189,16 @@ class ArticlesControllerTest extends TestCase
             'published' => false,
             'tag_string' => 'tag1, tag2, tag3'
         ];
+        $this->enableCsrfToken();
+        $this->put('/articles/edit/1', $data);
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/users/login');
+
+        $this->session(['Auth' => ['User' => ['id' => 1]]]);
+        $this->get('/articles/edit/1');
+        $this->assertResponseCode(200);
+
+        $this->session(['Auth' => ['User' => ['id' => 1]]]);
         $this->enableCsrfToken();
         $this->put('/articles/edit/1', $data);
         $this->assertResponseCode(302);
@@ -201,6 +227,12 @@ class ArticlesControllerTest extends TestCase
             'published' => false,
         ]);
 
+        $this->enableCsrfToken();
+        $this->post('/articles/delete/1');
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/users/login');
+
+        $this->session(['Auth' => ['User' => ['id' => 1]]]);
         $this->enableCsrfToken();
         $this->post('/articles/delete/1');
         $this->assertResponseCode(302);

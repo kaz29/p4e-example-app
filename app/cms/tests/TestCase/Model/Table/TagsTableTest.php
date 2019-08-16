@@ -1,9 +1,12 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Model\Entity\Tag;
 use App\Model\Table\TagsTable;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use CakeFabricate\Adaptor\CakeFabricateAdaptor;
+use Fabricate\Fabricate;
 
 /**
  * App\Model\Table\TagsTable Test Case
@@ -24,7 +27,8 @@ class TagsTableTest extends TestCase
      */
     public $fixtures = [
         'app.Tags',
-        'app.Articles'
+        'app.Users',
+        'app.Articles',
     ];
 
     /**
@@ -37,6 +41,10 @@ class TagsTableTest extends TestCase
         parent::setUp();
         $config = TableRegistry::getTableLocator()->exists('Tags') ? [] : ['className' => TagsTable::class];
         $this->Tags = TableRegistry::getTableLocator()->get('Tags', $config);
+
+        Fabricate::config(function ($config) {
+            $config->adaptor = new CakeFabricateAdaptor([CakeFabricateAdaptor::OPTION_FILTER_KEY => true]);
+        });
     }
 
     /**
@@ -58,7 +66,7 @@ class TagsTableTest extends TestCase
      */
     public function testInitialize()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $this->assertInstanceOf(TagsTable::class, $this->Tags);
     }
 
     /**
@@ -68,7 +76,31 @@ class TagsTableTest extends TestCase
      */
     public function testValidationDefault()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $data = [];
+        $entity = $this->Tags->newEntity($data);
+        $errors = $entity->getErrors();
+        $expected = [
+            'title' => ['_required' => 'This field is required'],
+        ];
+        $this->assertEquals($expected, $errors);
+
+        $data = [
+            'title' => str_repeat('A', 192),
+        ];
+        $entity = $this->Tags->newEntity($data);
+        $errors = $entity->getErrors();
+        $expected = [
+            'title' => ['maxLength' => 'The provided value is invalid'],
+        ];
+        $this->assertEquals($expected, $errors);
+
+        $data = [
+            'title' => str_repeat('A', 191),
+        ];
+        $entity = $this->Tags->newEntity($data);
+        $errors = $entity->getErrors();
+        $expected = [];
+        $this->assertEquals($expected, $errors);
     }
 
     /**
@@ -78,6 +110,28 @@ class TagsTableTest extends TestCase
      */
     public function testBuildRules()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        Fabricate::create('Tags', [
+            'title' => 'test-tag-name',
+        ]);
+
+        $data = [
+            'title' => 'test-tag-name',
+        ];
+        $entity = $this->Tags->newEntity($data);
+        $result = $this->Tags->save($entity);
+        $this->assertFalse($result);
+        $errors = $entity->getErrors();
+        $expected = [
+            'title' => ['unique' => 'The provided value is invalid'],
+        ];
+        $this->assertEquals($expected, $errors, 'タグのタイトルが重複する場合エラーになること');
+
+        $data = [
+            'title' => 'test-tag-name-new',
+        ];
+        $entity = $this->Tags->newEntity($data);
+        $result = $this->Tags->save($entity);
+        $this->assertNotFalse($result);
+        $this->assertInstanceOf(Tag::class, $result);
     }
 }

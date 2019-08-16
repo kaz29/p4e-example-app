@@ -1,9 +1,13 @@
 <?php
 namespace App\Model\Table;
 
+use App\Model\Entity\Article;
+use Cake\Datasource\EntityInterface;
+use Cake\Event\Event;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
+use Cake\Utility\Text;
 use Cake\Validation\Validator;
 
 /**
@@ -67,20 +71,15 @@ class ArticlesTable extends Table
         $validator
             ->scalar('title')
             ->maxLength('title', 255)
+            ->minLength('title', 10)
             ->requirePresence('title', 'create')
             ->notEmptyString('title');
 
         $validator
-            ->scalar('slug')
-            ->maxLength('slug', 191)
-            ->requirePresence('slug', 'create')
-            ->notEmptyString('slug')
-            ->add('slug', 'unique', ['rule' => 'validateUnique', 'provider' => 'table']);
-
-        $validator
             ->scalar('body')
             ->requirePresence('body', 'create')
-            ->notEmptyString('body');
+            ->notEmptyString('body')
+            ->minLength('body', 10);
 
         $validator
             ->boolean('published')
@@ -99,9 +98,23 @@ class ArticlesTable extends Table
      */
     public function buildRules(RulesChecker $rules)
     {
-        $rules->add($rules->isUnique(['slug']));
         $rules->add($rules->existsIn(['user_id'], 'Users'));
 
         return $rules;
+    }
+
+    public function beforeSave(Event $event, Article $entity, $options)
+    {
+        if ($entity->isNew() && !$entity->slug) {
+            $sluggedTitle = Text::slug($entity->title);
+            // trim slug to maximum length defined in schema
+            $entity->slug = substr($sluggedTitle, 0, 191);
+
+            $result = $this->find()->where(['slug' => $entity->slug])->count();
+            if ($result !== 0) {
+                $entity->setError('slug', ['_isUnique' => 'This value is already in use']);
+                return false;
+            }
+        }
     }
 }

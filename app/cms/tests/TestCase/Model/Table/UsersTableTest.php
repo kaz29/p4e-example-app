@@ -1,9 +1,13 @@
 <?php
 namespace App\Test\TestCase\Model\Table;
 
+use App\Model\Entity\User;
 use App\Model\Table\UsersTable;
+use Cake\Auth\DefaultPasswordHasher;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
+use CakeFabricate\Adaptor\CakeFabricateAdaptor;
+use Fabricate\Fabricate;
 
 /**
  * App\Model\Table\UsersTable Test Case
@@ -37,6 +41,10 @@ class UsersTableTest extends TestCase
         parent::setUp();
         $config = TableRegistry::getTableLocator()->exists('Users') ? [] : ['className' => UsersTable::class];
         $this->Users = TableRegistry::getTableLocator()->get('Users', $config);
+
+        Fabricate::config(function ($config) {
+            $config->adaptor = new CakeFabricateAdaptor([CakeFabricateAdaptor::OPTION_FILTER_KEY => true]);
+        });
     }
 
     /**
@@ -58,7 +66,7 @@ class UsersTableTest extends TestCase
      */
     public function testInitialize()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $this->assertInstanceOf(UsersTable::class, $this->Users);
     }
 
     /**
@@ -68,7 +76,46 @@ class UsersTableTest extends TestCase
      */
     public function testValidationDefault()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $data = [];
+        $entity = $this->Users->newEntity($data);
+        $errors = $entity->getErrors();
+        $expected = [
+            'email' => ['_required' => 'This field is required'],
+            'password' => ['_required' => 'This field is required'],
+        ];
+        $this->assertEquals($expected, $errors);
+
+        $data = [
+            'email' => 'foobar',
+            'password' => str_repeat('a', 256),
+        ];
+        $entity = $this->Users->newEntity($data);
+        $errors = $entity->getErrors();
+        $expected = [
+            'email' => ['email' => 'The provided value is invalid'],
+            'password' => ['maxLength' => 'The provided value is invalid'],
+        ];
+        $this->assertEquals($expected, $errors);
+
+        $data = [
+            'email' => 'foo@example.com',
+            'password' => str_repeat('a', 7),
+        ];
+        $entity = $this->Users->newEntity($data);
+        $errors = $entity->getErrors();
+        $expected = [
+            'password' => ['minLength' => 'The provided value is invalid'],
+        ];
+        $this->assertEquals($expected, $errors);
+
+        $data = [
+            'email' => 'foo@example.com',
+            'password' => str_repeat('a', 8),
+        ];
+        $entity = $this->Users->newEntity($data);
+        $errors = $entity->getErrors();
+        $expected = [];
+        $this->assertEquals($expected, $errors);
     }
 
     /**
@@ -78,6 +125,35 @@ class UsersTableTest extends TestCase
      */
     public function testBuildRules()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        Fabricate::create('Users', [
+            'email' => 'foo@example.com',
+            'password' => 'foobarbaz',
+        ]);
+
+        $data = [
+            'email' => 'foo@example.com',
+            'password' => str_repeat('a', 8),
+        ];
+        $entity = $this->Users->newEntity($data);
+        $result = $this->Users->save($entity);
+        $this->assertFalse($result);
+        $errors = $entity->getErrors();
+        $expected = [
+            'email' => ['_isUnique' => 'This value is already in use'],
+        ];
+        $this->assertEquals($expected, $errors, 'メールアドレスが重複する場合エラーになること');
+
+        $password = str_repeat('a', 8);
+        $data = [
+            'email' => 'bar@example.com',
+            'password' => $password,
+        ];
+        $entity = $this->Users->newEntity($data);
+        $result = $this->Users->save($entity);
+        $this->assertNotFalse($result);
+        $this->assertInstanceOf(User::class, $result);
+        $this->assertNotEquals($password, $result->password, 'パスワードがそのまま保存されていないこと');
+
+        $this->assertTrue((new DefaultPasswordHasher())->check($password, $result->password), 'ハッシュ化されたパスワードのチェックが正常に動作すること');
     }
 }

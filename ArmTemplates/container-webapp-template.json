@@ -15,6 +15,9 @@
             "defaultValue": "Standard",
             "type": "String"
         },
+        "skuCode": {
+            "type": "String"
+        },
         "registryName": {
             "type": "String"
         },
@@ -128,8 +131,8 @@
         {
             "type": "Microsoft.Web/serverfarms",
             "sku": {
-                "Tier": "[first(skip(split(parameters('sku'), ' '), 1))]",
-                "Name": "[first(split(parameters('sku'), ' '))]"
+                "Tier": "[parameters('sku')]",
+                "Name": "[parameters('skuCode')]"
             },
             "kind": "linux",
             "name": "[parameters('hostingPlanName')]",

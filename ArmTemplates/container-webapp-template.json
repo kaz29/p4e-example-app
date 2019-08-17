@@ -38,6 +38,9 @@
         "databaseServerName": {
             "type": "String"
         },
+        "databaseName": {
+            "type": "String"
+        },
         "dbPassword": {
             "type": "String"
         }
@@ -85,7 +88,7 @@
                         },
                         {
                             "name": "DB_USER",
-                            "value": "webapp@p4e-example-db"
+                            "value": "[concat(parameters('databaseName'), '@', parameters('databaseServerName'))]"
                         },
                         {
                             "name": "DB_PASSWORD",
@@ -93,11 +96,11 @@
                         },
                         {
                             "name": "DB_NAME",
-                            "value": "webapp"
+                            "value": "[parameters('databaseName')]"
                         },
                         {
                             "name": "DB_NAME_TEST",
-                            "value": "webapp_test"
+                            "value": "[concat(parameters('databaseName'), '_test']"
                         },
                         {
                             "name": "DB_PORT",

@@ -20,6 +20,8 @@ variables:
     value: Standard
   - name: Azure.WebbApp.SkuCode
     value: S1
+  - name: Azure.Database.Name
+    value: webapp
 
 jobs:
   - job: CreateResources

@@ -7,6 +7,7 @@ COPY config/000-default.conf /etc/apache2/sites-available/
 COPY config/opcache.ini /usr/local/etc/php/conf.d/
 COPY config/apc.ini /usr/local/etc/php/conf.d/
 COPY config/php.ini.development /usr/local/etc/php/php.ini
+COPY config/docker-entrypoint.sh /usr/local/bin/
 
 RUN set -ex \
     && echo "export LISTEN_PORT=80" >> "$APACHE_ENVVARS" \
@@ -16,7 +17,7 @@ RUN set -ex \
 
 COPY cms/composer.json cms/composer.lock /srv/cms/
 
-RUN composer install --working-dir=/srv/cms
+RUN composer install --working-dir=/srv/cms --no-dev
 COPY cms /srv/cms
 
 # TODO: cacheをAPCuにして以下を外す
@@ -24,4 +25,7 @@ RUN set -ex \
     && mkdir -p "/srv/cms/tmp" \
     && chown -R www-data "/srv/cms/tmp"
 
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
 WORKDIR /srv/cms
+CMD ["apache2-foreground"]

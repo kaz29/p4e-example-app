@@ -59,6 +59,7 @@ stages:
         pool:
           vmImage: 'Ubuntu-16.04'
         # creates an environment if it doesn’t exist
+        environment: '$(WebAppName)-staging'
         strategy:
           # default deployment strategy
           runOnce:

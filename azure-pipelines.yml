@@ -6,103 +6,19 @@ trigger:
 
 variables:
   - group: p4e-example-app
-  - name: imageName
-    value: 'p4e-example-app:$(build.buildId)'
-  - name: SubscriptionName
-    value: php-for-everyone
-  - name: ResourceGroupName
-    value: php-for-everyone
-  - name: RepositoryName
-    value: p4eexampleappacr
 
 jobs:
   - job:
     displayName: UnitTest
     pool:
       vmImage: 'Ubuntu-16.04'
-
     steps:
-      - task: DockerCompose@0
-        displayName: 'Run a Docker Compose command'
-        inputs:
-          dockerComposeFile: '**/docker-compose-ci.yml'
-          dockerComposeCommand: 'up -d'
-
-      - script: |
-          curl -L -O https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
-          tar zfx dockerize-linux-amd64-v0.6.1.tar.gz
-
-          ./dockerize -wait tcp://localhost:5432 -timeout 1m
-        displayName: 'Wait for database container'
-
-      - task: Docker@2
-        displayName: 'Create test database'
-        inputs:
-          command: exec
-          arguments: '-i p4e-database-ci /usr/local/bin/createdb -U webapp webapp_test'
-
-      - task: Docker@2
-        displayName: 'Database migration'
-        inputs:
-          command: exec
-          arguments: '-i p4e-app-ci /bin/bash -c "./bin/cake migrations migrate"'
-
-      - task: Docker@2
-        displayName: 'Execute UnitTest'
-        inputs:
-          command: exec
-          arguments: '-i p4e-app-ci ./vendor/bin/phpunit  --configuration phpunit-ci.xml'
-
-      - task: Docker@2
-        displayName: 'Copy report file to host'
-        inputs:
-          command: cp
-          arguments: 'p4e-app-ci:/srv/cms/PHPUNIT-log.xml ./'
-
-      - task: PublishTestResults@2
-        displayName: 'Publish Test Results **/PHPUNIT-log.xml'
-        inputs:
-          testResultsFiles: '**/PHPUNIT-log.xml'
+      - templates/unittest-steps.yml
 
   - job: Build
     pool:
-      name: Hosted Ubuntu 1604
+      vmImage: 'Ubuntu-16.04'
     variables:
       - group: p4e-example-app
     steps:
-      - task: AzureResourceGroupDeployment@2
-        displayName: 'Azure Deployment:Create Azure Container Registry'
-        inputs:
-          azureSubscription: $(SubscriptionName)
-          resourceGroupName: $(ResourceGroupName)
-          location: 'Japan East'
-          csmFile: '$(System.DefaultWorkingDirectory)/**/containerRegistry-template.json'
-          overrideParameters: '-registryName $(RepositoryName) -registryLocation "Japan East" -registrySku "Standard"'
-      - task: Docker@1
-        displayName: 'Build an image'
-        inputs:
-          azureSubscriptionEndpoint: $(SubscriptionName)
-          azureContainerRegistry: '$(RepositoryName).azurecr.io'
-          arguments: '--build-arg HTPASSWD=$(HTPASSWD)'
-          imageName: 'p4eexampleapp:$(Build.BuildId)'
-
-      - task: Docker@1
-        displayName: 'Push an image'
-        inputs:
-          azureSubscriptionEndpoint: $(SubscriptionName)
-          azureContainerRegistry: '$(RepositoryName).azurecr.io'
-          command: 'Push an image'
-          imageName: 'p4eexampleapp:$(Build.BuildId)'
-
-      - task: CopyFiles@2
-        displayName: 'Copy ARM templates'
-        inputs:
-          SourceFolder: ArmTemplates
-          TargetFolder: '$(build.artifactstagingdirectory)'
-
-      - task: PublishBuildArtifacts@1
-        displayName: 'Publish Artifact'
-        inputs:
-          PathtoPublish: '$(build.artifactstagingdirectory)'
-
-
+      - templates/buils-steps.yml

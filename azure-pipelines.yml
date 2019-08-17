@@ -65,4 +65,18 @@ stages:
           runOnce:
             deploy:
               steps:
-                - script: echo my first deployment
+                - task: AzureRmWebAppDeployment@3
+                  displayName: 'Deploy Azure App Service'
+                  inputs:
+                    azureSubscription: $(SubscriptionName)
+                    appType: applinux
+                    WebAppName: 'p4e-example-app'
+                    DeployToSlotFlag: true
+                    ResourceGroupName: $(ResourceGroupName)
+                    SlotName: staging
+                    DockerNamespace: '$(RepositoryName).azurecr.io'
+                    DockerRepository: $(ImageName)
+                    DockerImageTag: '$(Build.BuildId)'
+                    TakeAppOfflineFlag: true
+                    UseWebDeploy: true
+                    RenameFilesFlag: true

@@ -33,3 +33,17 @@ $ docker exec -i p4e-app /bin/bash -c "./bin/cake migrations migrate"
 ```
 $ docker exec -i p4e-app /srv/cms/vendor/bin/phpunit
 ```
+
+## 本番用ビルド
+
+### buiuld
+
+```
+$ docker build -t p4e-example-app .
+```
+
+### run
+
+```
+$ docker run -it --rm -d -p 80:80 -e APP_ENV=production --name p4e-example-app p4e-example-app:latest
+```

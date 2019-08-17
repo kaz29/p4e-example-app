@@ -81,7 +81,7 @@
                         },
                         {
                             "name": "DB_HOST",
-                            "value": "[concat(paramaters('databaseServerName'), '.postgres.database.azure.com')]"
+                            "value": "[concat(parameters('databaseServerName'), '.postgres.database.azure.com')]"
                         },
                         {
                             "name": "DB_USER",

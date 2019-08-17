@@ -13,7 +13,7 @@ jobs:
     pool:
       vmImage: 'Ubuntu-16.04'
     steps:
-      - templates/unittest-steps.yml
+      - template: templates/unittest-steps.yml
 
   - job: Build
     pool:
@@ -21,4 +21,4 @@ jobs:
     variables:
       - group: p4e-example-app
     steps:
-      - templates/buils-steps.yml
+      - template: templates/buils-steps.yml

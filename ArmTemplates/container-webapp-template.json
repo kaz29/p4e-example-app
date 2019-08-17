@@ -31,6 +31,9 @@
         "startupCommand": {
             "defaultValue": "",
             "type": "String"
+        },
+        "dbPassword": {
+            "type": "String"
         }
     },
     "resources": [
@@ -65,6 +68,38 @@
                         {
                             "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
                             "value": "[reference(resourceId('microsoft.insights/components/', parameters('webAppName')), '2015-05-01').InstrumentationKey]"
+                        },
+                        {
+                            "name": "APP_ENV",
+                            "value": "production"
+                        },
+                        {
+                            "name": "DB_HOST",
+                            "value": "p4e-example-db.postgres.database.azure.com"
+                        },
+                        {
+                            "name": "DB_USER",
+                            "value": "webapp@p4e-example-db"
+                        },
+                        {
+                            "name": "DB_PASSWORD",
+                            "value": "[parameters('dbPassword')]"
+                        },
+                        {
+                            "name": "DB_NAME",
+                            "value": "webapp"
+                        },
+                        {
+                            "name": "DB_NAME_TEST",
+                            "value": "webapp_test"
+                        },
+                        {
+                            "name": "DB_PORT",
+                            "value": 5432
+                        },
+                        {
+                            "name": "DEBUG",
+                            "value": 0
                         }
                     ],
                     "appCommandLine": "[parameters('startupCommand')]",

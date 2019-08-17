@@ -100,7 +100,7 @@
                         },
                         {
                             "name": "DB_NAME_TEST",
-                            "value": "[concat(parameters('databaseName'), '_test']"
+                            "value": "[concat(parameters('databaseName'), '_test')]"
                         },
                         {
                             "name": "DB_PORT",

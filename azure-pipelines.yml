@@ -58,45 +58,45 @@ jobs:
         inputs:
           testResultsFiles: '**/PHPUNIT-log.xml'
 
-    - job: Build
-      pool:
-        name: Hosted Ubuntu 1604
-      variables:
-        - group: p4e-example-app
-      steps:
-        - task: AzureResourceGroupDeployment@2
-          displayName: 'Azure Deployment:Create Azure Container Registry'
-          inputs:
-            azureSubscription: 'p4e-example-app - Azure'
-            resourceGroupName: 'p4e-example-app-rg'
-            location: 'Japan East'
-            csmFile: '$(System.DefaultWorkingDirectory)/**/containerRegistry-template.json'
-            overrideParameters: '-registryName "p4eexampleappacr" -registryLocation "Japan East" -registrySku "Standard"'
-        - task: Docker@1
-          displayName: 'Build an image'
-          inputs:
-            azureSubscriptionEndpoint: 'p4e-example-app - Azure'
-            azureContainerRegistry: p4eexampleappacr.azurecr.io
-            arguments: '--build-arg HTPASSWD=$(HTPASSWD)'
-            imageName: 'p4eexampleapp:$(Build.BuildId)'
+  - job: Build
+    pool:
+      name: Hosted Ubuntu 1604
+    variables:
+      - group: p4e-example-app
+    steps:
+      - task: AzureResourceGroupDeployment@2
+        displayName: 'Azure Deployment:Create Azure Container Registry'
+        inputs:
+          azureSubscription: 'p4e-example-app - Azure'
+          resourceGroupName: 'p4e-example-app-rg'
+          location: 'Japan East'
+          csmFile: '$(System.DefaultWorkingDirectory)/**/containerRegistry-template.json'
+          overrideParameters: '-registryName "p4eexampleappacr" -registryLocation "Japan East" -registrySku "Standard"'
+      - task: Docker@1
+        displayName: 'Build an image'
+        inputs:
+          azureSubscriptionEndpoint: 'p4e-example-app - Azure'
+          azureContainerRegistry: p4eexampleappacr.azurecr.io
+          arguments: '--build-arg HTPASSWD=$(HTPASSWD)'
+          imageName: 'p4eexampleapp:$(Build.BuildId)'
 
-        - task: Docker@1
-          displayName: 'Push an image'
-          inputs:
-            azureSubscriptionEndpoint: 'p4e-example-app - Azure'
-            azureContainerRegistry: p4eexampleappacr.azurecr.io
-            command: 'Push an image'
-            imageName: 'p4eexampleapp:$(Build.BuildId)'
+      - task: Docker@1
+        displayName: 'Push an image'
+        inputs:
+          azureSubscriptionEndpoint: 'p4e-example-app - Azure'
+          azureContainerRegistry: p4eexampleappacr.azurecr.io
+          command: 'Push an image'
+          imageName: 'p4eexampleapp:$(Build.BuildId)'
 
-        - task: CopyFiles@2
-          displayName: 'Copy ARM templates'
-          inputs:
-            SourceFolder: ArmTemplates
-            TargetFolder: '$(build.artifactstagingdirectory)'
+      - task: CopyFiles@2
+        displayName: 'Copy ARM templates'
+        inputs:
+          SourceFolder: ArmTemplates
+          TargetFolder: '$(build.artifactstagingdirectory)'
 
-        - task: PublishBuildArtifacts@1
-          displayName: 'Publish Artifact'
-          inputs:
-            PathtoPublish: '$(build.artifactstagingdirectory)'
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact'
+        inputs:
+          PathtoPublish: '$(build.artifactstagingdirectory)'
 
 

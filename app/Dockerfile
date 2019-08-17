@@ -1,5 +1,8 @@
 FROM kaz29/php-apache:7.3.8
 
+ARG HTPASSWD
+
+ENV HTPASSWD "$HTPASSWD"
 ENV APACHE_CONFDIR /etc/apache2
 ENV APACHE_ENVVARS $APACHE_CONFDIR/envvars
 
@@ -13,12 +16,14 @@ RUN set -ex \
     && echo "export LISTEN_PORT=80" >> "$APACHE_ENVVARS" \
     && ln -sfT /dev/stderr "$APACHE_LOG_DIR/app-error.log" \
     && ln -sfT /dev/stdout "$APACHE_LOG_DIR/app-access.log" \
-    && a2ensite 000-default
+    && a2ensite 000-default \
+    && echo "$HTPASSWD" > /srv/.htpasswd
 
 COPY cms/composer.json cms/composer.lock /srv/cms/
 
 RUN composer install --working-dir=/srv/cms --no-dev
 COPY cms /srv/cms
+COPY config/.htaccess /srv/cms/webroot/
 
 # TODO: cacheをAPCuにして以下を外す
 RUN set -ex \

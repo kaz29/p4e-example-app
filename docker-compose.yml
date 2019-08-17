@@ -32,6 +32,7 @@ services:
       DB_PORT: 5432
       DB_ENCODING: UTF8
       DB_TIMEZONE: UTC
+      DEBUG: 1
     volumes:
       - ./app:/srv:cached
 

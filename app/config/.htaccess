@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+AuthUserFile /srv/.htpasswd
+AuthName "Authentication required"
+AuthType Basic
+require valid-user
+
+<Files ~ "^.(htpasswd|htaccess)$">
+    Require all denied
+</Files>

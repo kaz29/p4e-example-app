@@ -39,7 +39,7 @@ $ docker exec -i p4e-app /srv/cms/vendor/bin/phpunit
 ### buiuld
 
 ```
-$ docker build -t p4e-example-app .
+$ docker build -t p4e-example-app . --build-arg HTPASSWD="p4e:ハッシュ化したパスワード文字列" 
 ```
 
 ### run

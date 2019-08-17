@@ -25,4 +25,4 @@ steps:
       resourceGroupName: $(ResourceGroupName)
       location: 'Japan East'
       csmFile: '$(System.DefaultWorkingDirectory)/**/container-webapp-template.json'
-      overrideParameters: '-webAppName $(WebAppName) -hostingPlanName $(HostingPlanName) -appInsightsLocation "$(Azure.WebbApp.AppInsightsLocation)" -sku $(Azure.WebbApp.Sku) -skuCode $(Azure.WebbApp.SkuCode) -registryName $(RepositoryName) -registryLocation "$(Azure.ACR.RegistryLocation)" -registrySku $(Azure.ACR.Sku) -imageName $(ImageName):$(Build.BuildId) -dbPassword $(DB_PASSWORD)'
+      overrideParameters: '-webAppName $(WebAppName) -hostingPlanName $(HostingPlanName) -appInsightsLocation "$(Azure.WebbApp.AppInsightsLocation)" -sku $(Azure.WebbApp.Sku) -skuCode $(Azure.WebbApp.SkuCode) -registryName $(RepositoryName) -registryLocation "$(Azure.ACR.RegistryLocation)" -registrySku $(Azure.ACR.Sku) -imageName $(ImageName):$(Build.BuildId) -databaseServerName $(DATABASE_SERVER_NAME) -dbPassword $(DB_PASSWORD)'

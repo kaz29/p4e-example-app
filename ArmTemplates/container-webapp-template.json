@@ -35,6 +35,9 @@
             "defaultValue": "",
             "type": "String"
         },
+        "databaseServerName": {
+            "type": "String"
+        },
         "dbPassword": {
             "type": "String"
         }
@@ -78,7 +81,7 @@
                         },
                         {
                             "name": "DB_HOST",
-                            "value": "p4e-example-db.postgres.database.azure.com"
+                            "value": "[reference(resourceId('Microsoft.DBforPostgreSQL/servers',variables('databaseServerName')))"
                         },
                         {
                             "name": "DB_USER",

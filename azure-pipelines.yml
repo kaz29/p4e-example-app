@@ -8,6 +8,18 @@ variables:
   - group: p4e-example-app
   - name: Azure.CreateResources
     value: 'true' # Update Azure.CreateResources to false if you have already created resources like resource group and azure container registry.
+  - name: ImageName
+    value: p4eexampleapp
+  - name: Azure.ACR.RegistryLocation
+    value: 'Japan East'
+  - name: Azure.ACR.Sku
+    value: Standard
+  - name: Azure.WebbApp.AppInsightsLocation
+    value: 'Japan East'
+  - name: Azure.WebbApp.Sku
+    value: Standard
+  - name: Azure.WebbApp.SkuCode
+    value: S1
 
 jobs:
   - job: CreateResources

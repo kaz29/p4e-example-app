@@ -7,3 +7,22 @@ steps:
       location: 'Japan East'
       csmFile: '$(System.DefaultWorkingDirectory)/**/containerRegistry-template.json'
       overrideParameters: '-registryName $(RepositoryName) -registryLocation "Japan East" -registrySku "Standard"'
+
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Azure Deployment:Create Azure Database for PostgreSQL'
+    inputs:
+      azureSubscription: $(SubscriptionName)
+      resourceGroupName: $(ResourceGroupName)
+      location: 'Japan East'
+      csmFile: '$(System.DefaultWorkingDirectory)/**/database-for-postgres-template.json'
+      csmParametersFile: '$(System.DefaultWorkingDirectory)/**/database-for-postgres-parameters.json'
+      overrideParameters: '-administratorLoginPassword $(DB_PASSWORD) -serverName $(DATABASE_SERVER_NAME)'
+
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Azure Deployment:Create Azure App Service'
+    inputs:
+      azureSubscription: $(SubscriptionName)
+      resourceGroupName: $(ResourceGroupName)
+      location: 'Japan East'
+      csmFile: '$(System.DefaultWorkingDirectory)/**/container-webapp-template.json'
+      overrideParameters: '-webAppName $(WebAppName) -hostingPlanName $(HostingPlanName) -appInsightsLocation $(Azure.WebbApp.AppInsightsLocation) -sku $(Azure.WebbApp.Sku) -skuCode $(Azure.WebbApp.SkuCode) -registryName $(RepositoryName) -registryLocation $(Azure.ACR.RegistryLocation) -registrySku $(Azure.ACR.Sku) -imageName $(ImageName):$(Build.BuildId) -dbPassword $(DB_PASSWORD)'

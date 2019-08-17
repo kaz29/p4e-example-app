@@ -5,7 +5,7 @@ steps:
       azureSubscriptionEndpoint: $(SubscriptionName)
       azureContainerRegistry: '$(RepositoryName).azurecr.io'
       arguments: '--build-arg HTPASSWD=$(HTPASSWD)'
-      imageName: 'p4eexampleapp:$(Build.BuildId)'
+      imageName: '$(ImageName):$(Build.BuildId)'
 
   - task: Docker@1
     displayName: 'Push an image'
@@ -13,7 +13,7 @@ steps:
       azureSubscriptionEndpoint: $(SubscriptionName)
       azureContainerRegistry: '$(RepositoryName).azurecr.io'
       command: 'Push an image'
-      imageName: 'p4eexampleapp:$(Build.BuildId)'
+      imageName: '$(ImageName):$(Build.BuildId)'
 
   - task: CopyFiles@2
     displayName: 'Copy ARM templates'

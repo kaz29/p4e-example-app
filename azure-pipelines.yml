@@ -8,6 +8,12 @@ variables:
   - group: p4e-example-app
   - name: imageName
     value: 'p4e-example-app:$(build.buildId)'
+  - name: SubscriptionName
+    value: php-for-everyone
+  - name: ResourceGroupName
+    value: php-for-everyone
+  - name: RepositoryName
+    value: p4eexampleappacr
 
 jobs:
   - job:
@@ -67,24 +73,24 @@ jobs:
       - task: AzureResourceGroupDeployment@2
         displayName: 'Azure Deployment:Create Azure Container Registry'
         inputs:
-          azureSubscription: 'php-for-everyone'
-          resourceGroupName: 'php-for-everyone'
+          azureSubscription: $(SubscriptionName)
+          resourceGroupName: $(ResourceGroupName)
           location: 'Japan East'
           csmFile: '$(System.DefaultWorkingDirectory)/**/containerRegistry-template.json'
-          overrideParameters: '-registryName "p4eexampleappacr" -registryLocation "Japan East" -registrySku "Standard"'
+          overrideParameters: '-registryName $(RepositoryName) -registryLocation "Japan East" -registrySku "Standard"'
       - task: Docker@1
         displayName: 'Build an image'
         inputs:
-          azureSubscriptionEndpoint: 'php-for-everyone'
-          azureContainerRegistry: p4eexampleappacr.azurecr.io
+          azureSubscriptionEndpoint: $(SubscriptionName)
+          azureContainerRegistry: '$(RepositoryName).azurecr.io'
           arguments: '--build-arg HTPASSWD=$(HTPASSWD)'
           imageName: 'p4eexampleapp:$(Build.BuildId)'
 
       - task: Docker@1
         displayName: 'Push an image'
         inputs:
-          azureSubscriptionEndpoint: 'php-for-everyone'
-          azureContainerRegistry: p4eexampleappacr.azurecr.io
+          azureSubscriptionEndpoint: $(SubscriptionName)
+          azureContainerRegistry: '$(RepositoryName).azurecr.io'
           command: 'Push an image'
           imageName: 'p4eexampleapp:$(Build.BuildId)'
 

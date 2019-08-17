@@ -46,8 +46,7 @@
         },
         "environments": {
             "defaultValue": [
-                "staging",
-                "test"
+                "staging"
             ],
             "type": "array",
             "metadata": {

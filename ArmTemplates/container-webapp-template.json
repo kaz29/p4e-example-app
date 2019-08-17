@@ -181,7 +181,7 @@
             "type": "Microsoft.Web/sites/slots",
             "name": "[concat(parameters('webAppName'), '/', parameters('environments')[copyIndex()])]",
             "kind": "app",
-            "location": "[parameters('location')]",
+            "location": "[resourceGroup().location]",
             "comments": "This specifies the web app slots.",
             "tags": {
                 "displayName": "WebAppSlots"

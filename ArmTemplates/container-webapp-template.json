@@ -81,7 +81,7 @@
                         },
                         {
                             "name": "DB_HOST",
-                            "value": "[reference(resourceId('Microsoft.DBforPostgreSQL/servers',variables('databaseServerName')))"
+                            "value": "[reference(resourceId('Microsoft.DBforPostgreSQL/servers', parameters('databaseServerName'))).fullyQualifiedDomainName]"
                         },
                         {
                             "name": "DB_USER",

@@ -8,7 +8,7 @@ variables:
   - group: p4e-example-app
 
 jobs:
-  - job:
+  - job: UnitTest
     displayName: UnitTest
     pool:
       vmImage: 'Ubuntu-16.04'
@@ -16,9 +16,12 @@ jobs:
       - template: templates/unittest-steps.yml
 
   - job: Build
+    displayName: Build
     pool:
       vmImage: 'Ubuntu-16.04'
     variables:
       - group: p4e-example-app
     steps:
       - template: templates/buils-steps.yml
+    dependsOn:
+      - UnitTest

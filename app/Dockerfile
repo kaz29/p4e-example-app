@@ -16,7 +16,7 @@ RUN set -ex \
 
 COPY cms/composer.json cms/composer.lock /srv/cms/
 
-RUN composer install --working-dir=/srv/cms --dev
+RUN composer install --working-dir=/srv/cms
 COPY cms /srv/cms
 
 # TODO: cacheをAPCuにして以下を外す

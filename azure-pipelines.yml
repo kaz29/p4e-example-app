@@ -70,7 +70,7 @@ stages:
                   inputs:
                     azureSubscription: $(SubscriptionName)
                     appType: applinux
-                    WebAppName: 'p4e-example-app'
+                    WebAppName: $(WebAppName)
                     DeployToSlotFlag: true
                     ResourceGroupName: $(ResourceGroupName)
                     SlotName: staging

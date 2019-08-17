@@ -16,7 +16,7 @@ steps:
       location: 'Japan East'
       csmFile: '$(System.DefaultWorkingDirectory)/**/database-for-postgres-template.json'
       csmParametersFile: '$(System.DefaultWorkingDirectory)/**/database-for-postgres-parameters.json'
-      overrideParameters: '-administratorLoginPassword $(DB_PASSWORD) -serverName $(DATABASE_SERVER_NAME)'
+      overrideParameters: '-administratorLoginPassword "$(DB_PASSWORD)" -serverName $(DATABASE_SERVER_NAME)'
 
   - task: AzureResourceGroupDeployment@2
     displayName: 'Azure Deployment:Create Azure App Service'

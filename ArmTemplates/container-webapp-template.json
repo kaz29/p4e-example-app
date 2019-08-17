@@ -43,6 +43,17 @@
         },
         "dbPassword": {
             "type": "String"
+        },
+        "environments": {
+            "defaultValue": [
+                "staging",
+                "test"
+            ],
+            "type": "array",
+            "metadata": {
+                "description": "Array with the names for the environment slots"
+            },
+            "maxLength": 19
         }
     },
     "resources": [
@@ -163,6 +174,27 @@
             "properties": {
                 "applicationId": "[parameters('webAppName')]",
                 "Request_Source": "AzureTfsExtensionAzureProject"
+            }
+        },
+        {
+            "apiVersion": "2016-08-01",
+            "type": "Microsoft.Web/sites/slots",
+            "name": "[concat(variables('webAppName'), '/', parameters('environments')[copyIndex()])]",
+            "kind": "app",
+            "location": "[parameters('location')]",
+            "comments": "This specifies the web app slots.",
+            "tags": {
+                "displayName": "WebAppSlots"
+            },
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/Sites', variables('webAppName'))]"
+            ],
+            "copy": {
+                "name": "webPortalSlot",
+                "count": "[length(parameters('environments'))]"
             }
         }
     ]

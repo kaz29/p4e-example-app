@@ -4,65 +4,56 @@ name: p4e-example-app
 trigger:
   - master
 
-pool:
-  vmImage: 'Ubuntu-16.04'
-
 variables:
   - group: p4e-example-app
   - name: imageName
     value: 'p4e-example-app:$(build.buildId)'
 
-
-stages:
-  - stage: Build
+jobs:
+  - job:
     displayName: UnitTest
+    pool:
+      vmImage: 'Ubuntu-16.04'
 
-    jobs:
+    steps:
+      - task: DockerCompose@0
+        displayName: 'Run a Docker Compose command'
+        inputs:
+          dockerComposeFile: '**/docker-compose-ci.yml'
+          dockerComposeCommand: 'up -d'
 
-      - job:
-        displayName: UnitTest
-        pool:
-          vmImage: 'Ubuntu-16.04'
+      - script: |
+          curl -L -O https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
+          tar zfx dockerize-linux-amd64-v0.6.1.tar.gz
 
-        steps:
-          - task: DockerCompose@0
-            displayName: 'Run a Docker Compose command'
-            inputs:
-              dockerComposeFile: '**/docker-compose-ci.yml'
-              dockerComposeCommand: 'up -d'
+          ./dockerize -wait tcp://localhost:5432 -timeout 1m
+        displayName: 'Wait for database container'
 
-          - script: |
-              curl -L -O https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
-              tar zfx dockerize-linux-amd64-v0.6.1.tar.gz
+      - task: Docker@2
+        displayName: 'Create test database'
+        inputs:
+          command: exec
+          arguments: '-i p4e-database-ci /usr/local/bin/createdb -U webapp webapp_test'
 
-              ./dockerize -wait tcp://localhost:5432 -timeout 1m
-            displayName: 'Wait for database container'
+      - task: Docker@2
+        displayName: 'Database migration'
+        inputs:
+          command: exec
+          arguments: '-i p4e-app-ci /bin/bash -c "./bin/cake migrations migrate"'
 
-          - task: Docker@2
-            displayName: 'Create test database'
-            inputs:
-              command: exec
-              arguments: '-i p4e-database-ci /usr/local/bin/createdb -U webapp webapp_test'
+      - task: Docker@2
+        displayName: 'Execute UnitTest'
+        inputs:
+          command: exec
+          arguments: '-i p4e-app-ci ./vendor/bin/phpunit  --configuration phpunit-ci.xml'
 
-          - task: Docker@2
-            displayName: 'Database migration'
-            inputs:
-              command: exec
-              arguments: '-i p4e-app-ci /bin/bash -c "./bin/cake migrations migrate"'
+      - task: Docker@2
+        displayName: 'Copy report file to host'
+        inputs:
+          command: cp
+          arguments: 'p4e-app-ci:/srv/cms/PHPUNIT-log.xml ./'
 
-          - task: Docker@2
-            displayName: 'Execute UnitTest'
-            inputs:
-              command: exec
-              arguments: '-i p4e-app-ci ./vendor/bin/phpunit  --configuration phpunit-ci.xml'
-
-          - task: Docker@2
-            displayName: 'Copy report file to host'
-            inputs:
-              command: cp
-              arguments: 'p4e-app-ci:/srv/cms/PHPUNIT-log.xml ./'
-
-          - task: PublishTestResults@2
-            displayName: 'Publish Test Results **/PHPUNIT-log.xml'
-            inputs:
-              testResultsFiles: '**/PHPUNIT-log.xml'
+      - task: PublishTestResults@2
+        displayName: 'Publish Test Results **/PHPUNIT-log.xml'
+        inputs:
+          testResultsFiles: '**/PHPUNIT-log.xml'

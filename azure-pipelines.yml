@@ -6,22 +6,34 @@ trigger:
 
 variables:
   - group: p4e-example-app
+  - name: Azure.CreateResources
+    value: 'true' # Update Azure.CreateResources to false if you have already created resources like resource group and azure container registry.
 
 jobs:
+  - job: CreateResources
+    displayName: Create resources
+    condition: and(succeeded(), eq(variables['Azure.CreateResources'], 'true'))
+    pool:
+      vmImage: 'Ubuntu-16.04'
+    steps:
+      - template: templates/createresources-steps.yml
+
   - job: UnitTest
     displayName: UnitTest
+    condition: and(succeeded(), eq(variables['Azure.CreateResources'], 'true'))
     pool:
       vmImage: 'Ubuntu-16.04'
     steps:
       - template: templates/unittest-steps.yml
+    dependsOn: CreateResources
 
   - job: Build
     displayName: Build
+    condition: and(succeeded(), eq(variables['Azure.CreateResources'], 'true'))
     pool:
       vmImage: 'Ubuntu-16.04'
     variables:
       - group: p4e-example-app
     steps:
       - template: templates/buils-steps.yml
-    dependsOn:
-      - UnitTest
+    dependsOn: UnitTest

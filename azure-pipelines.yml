@@ -10,6 +10,8 @@ variables:
     value: 'true' # Update Azure.CreateResources to false if you have already created resources like resource group and azure container registry.
   - name: ImageName
     value: p4eexampleapp
+  - name: Azure.Location
+    value: 'Japan East'
   - name: Azure.ACR.RegistryLocation
     value: 'Japan East'
   - name: Azure.ACR.Sku
@@ -55,7 +57,7 @@ stages:
         dependsOn: UnitTest
   - stage: Deploy
     jobs:
-      - deployment: DeployWeb
+      - deployment: DeployToStaging
         pool:
           vmImage: 'Ubuntu-16.04'
         # creates an environment if it doesn’t exist
@@ -80,3 +82,18 @@ stages:
                     TakeAppOfflineFlag: true
                     UseWebDeploy: true
                     RenameFilesFlag: true
+      - deployment: DeployToProduction
+        pool:
+          vmImage: 'Ubuntu-16.04'
+        environment: '$(WebAppName)-production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureAppServiceManage@0
+                  displayName: 'Swap Slots'
+                  inputs:
+                    azureSubscription: $(SubscriptionName)
+                    WebAppName: $(WebAppName)
+                    ResourceGroupName: $(ResourceGroupName)
+                    SourceSlot: staging

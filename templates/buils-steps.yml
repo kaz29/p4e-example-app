@@ -2,16 +2,16 @@ steps:
   - task: Docker@1
     displayName: 'Build an image'
     inputs:
-      azureSubscriptionEndpoint: $(SubscriptionName)
-      azureContainerRegistry: '$(RepositoryName).azurecr.io'
+      azureSubscriptionEndpoint: $(SUBSCRIPTION_NAME)
+      azureContainerRegistry: '$(REPOSITORY_NAME).azurecr.io'
       arguments: '--build-arg HTPASSWD=$(HTPASSWD)'
       imageName: '$(ImageName):$(Build.BuildId)'
 
   - task: Docker@1
     displayName: 'Push an image'
     inputs:
-      azureSubscriptionEndpoint: $(SubscriptionName)
-      azureContainerRegistry: '$(RepositoryName).azurecr.io'
+      azureSubscriptionEndpoint: $(SUBSCRIPTION_NAME)
+      azureContainerRegistry: '$(REPOSITORY_NAME).azurecr.io'
       command: 'Push an image'
       imageName: '$(ImageName):$(Build.BuildId)'
 

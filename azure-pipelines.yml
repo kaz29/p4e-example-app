@@ -26,7 +26,7 @@ variables:
     value: webapp
 
 stages:
-  - stage: Build
+  - stage: CreateResources
     jobs:
       - job: CreateResources
         displayName: Create resources
@@ -36,28 +36,31 @@ stages:
         steps:
           - template: templates/createresources-steps.yml
 
+  - stage: UnitTest
+    jobs:
       - job: UnitTest
         displayName: UnitTest
-        condition: and(succeeded(), eq(variables['Azure.CreateResources'], 'true'))
+        condition: succeeded()
         pool:
           vmImage: 'Ubuntu-16.04'
         steps:
           - template: templates/unittest-steps.yml
-        dependsOn: CreateResources
 
+  - stage: Build
+    jobs:
       - job: Build
         displayName: Build
-        condition: and(succeeded(), eq(variables['Azure.CreateResources'], 'true'))
+        condition: succeeded()
         pool:
           vmImage: 'Ubuntu-16.04'
         variables:
           - group: p4e-example-app
         steps:
           - template: templates/buils-steps.yml
-        dependsOn: UnitTest
-  - stage: Deploy
+
+  - stage: Staging
     jobs:
-      - deployment: Staging
+      - deployment: Deploy
         pool:
           vmImage: 'Ubuntu-16.04'
         environment: '$(WEBAPP_NAME)-staging'
@@ -80,7 +83,10 @@ stages:
                     TakeAppOfflineFlag: true
                     UseWebDeploy: true
                     RenameFilesFlag: true
-      - deployment: Production
+
+  - stage: Production
+    jobs:
+      - deployment: Deploy
         pool:
           vmImage: 'Ubuntu-16.04'
         environment: '$(WEBAPP_NAME)-production'

@@ -5,7 +5,7 @@ steps:
       azureSubscription: $(SUBSCRIPTION_NAME)
       scriptLocation: inlineScript
       inlineScript: |
-        az group create -l "$(SUBSCRIPTION_NAME)" -n $(RESOURCE_GROUP_NAME) --allow-no-subscriptions
+        az group create -l "$(Azure.Location)" -n $(RESOURCE_GROUP_NAME) --allow-no-subscriptions
 #    inputs:
 #      azureSubscription: $(SUBSCRIPTION_NAME)
 #      resourceGroupName: $(RESOURCE_GROUP_NAME)

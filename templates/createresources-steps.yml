@@ -1,9 +1,11 @@
 steps:
   - task: AzureCLI@1
+    displayName: 'AzureCLI:Create Azure Resource Group'
     inputs:
       azureSubscription: $(SUBSCRIPTION_NAME)
-      resourceGroupName: $(RESOURCE_GROUP_NAME)
-      location: '$(Azure.Location)'
+      scriptLocation: inlineScript
+      inlineScript: |
+        az group create -l '$(Azure.Location)' -n $(RESOURCE_GROUP_NAME)
 
   - task: AzureResourceGroupDeployment@2
     displayName: 'Azure Deployment:Create Azure Container Registry'

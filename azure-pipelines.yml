@@ -60,23 +60,21 @@ stages:
       - deployment: DeployToStaging
         pool:
           vmImage: 'Ubuntu-16.04'
-        # creates an environment if it doesn’t exist
-        environment: '$(WebAppName)-staging'
+        environment: '$(WEBAPP_NAME)-staging'
         strategy:
-          # default deployment strategy
           runOnce:
             deploy:
               steps:
                 - task: AzureRmWebAppDeployment@3
                   displayName: 'Deploy Azure App Service'
                   inputs:
-                    azureSubscription: $(SubscriptionName)
+                    azureSubscription: $(SUBSCRIPTION_NAME)
                     appType: applinux
-                    WebAppName: $(WebAppName)
+                    WebAppName: $(WEBAPP_NAME)
                     DeployToSlotFlag: true
-                    ResourceGroupName: $(ResourceGroupName)
+                    ResourceGroupName: $(RESOURCE_GROUP_NAME)
                     SlotName: staging
-                    DockerNamespace: '$(RepositoryName).azurecr.io'
+                    DockerNamespace: '$(REPOSITORY_NAME).azurecr.io'
                     DockerRepository: $(ImageName)
                     DockerImageTag: '$(Build.BuildId)'
                     TakeAppOfflineFlag: true
@@ -85,7 +83,8 @@ stages:
       - deployment: DeployToProduction
         pool:
           vmImage: 'Ubuntu-16.04'
-        environment: '$(WebAppName)-production'
+        environment: '$(WEBAPP_NAME)-production'
+        dependsOn: DeployToStaging
         strategy:
           runOnce:
             deploy:
@@ -93,7 +92,7 @@ stages:
                 - task: AzureAppServiceManage@0
                   displayName: 'Swap Slots'
                   inputs:
-                    azureSubscription: $(SubscriptionName)
-                    WebAppName: $(WebAppName)
-                    ResourceGroupName: $(ResourceGroupName)
+                    azureSubscription: $(SUBSCRIPTION_NAME)
+                    WebAppName: $(WEBAPP_NAME)
+                    ResourceGroupName: $(RESOURCE_GROUP_NAME)
                     SourceSlot: staging

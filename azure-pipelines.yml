@@ -57,7 +57,7 @@ stages:
         dependsOn: UnitTest
   - stage: Deploy
     jobs:
-      - deployment: DeployToStaging
+      - deployment: Staging
         pool:
           vmImage: 'Ubuntu-16.04'
         environment: '$(WEBAPP_NAME)-staging'
@@ -80,11 +80,10 @@ stages:
                     TakeAppOfflineFlag: true
                     UseWebDeploy: true
                     RenameFilesFlag: true
-      - deployment: DeployToProduction
+      - deployment: Production
         pool:
           vmImage: 'Ubuntu-16.04'
         environment: '$(WEBAPP_NAME)-production'
-        dependsOn: DeployToStaging
         strategy:
           runOnce:
             deploy:

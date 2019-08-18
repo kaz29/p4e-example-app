@@ -2,7 +2,7 @@ steps:
   - task: AzureCLI@1
     displayName: 'AzureCLI:Create Azure Resource Group'
     inputs:
-      azureSubscription: 'p4e-example-app - Azure'
+      azureSubscription: $(SUBSCRIPTION_NAME)
       scriptLocation: inlineScript
       inlineScript: |
         az group create -l "$(SUBSCRIPTION_NAME)" -n $(RESOURCE_GROUP_NAME) --allow-no-subscriptions

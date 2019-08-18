@@ -1,8 +1,9 @@
 steps:
   - task: AzureResourceGroupDeployment@2
-    displayName: 'Azure Deployment:Create Azure Container Registry'
+    displayName: 'Azure Deployment:Create Resource Group'
     inputs:
       azureSubscription: $(SUBSCRIPTION_NAME)
+      resourceGroupName: $(RESOURCE_GROUP_NAME)
       csmFile: '$(System.DefaultWorkingDirectory)/**/emptyRG.json'
       overrideParameters: '-rgName $(RESOURCE_GROUP_NAME) -rgLocation "$(Azure.Location)"'
 

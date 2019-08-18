@@ -23,7 +23,7 @@ services:
     ports:
       - '80:80'
     environment:
-      APP_ENV: development
+      APP_ENV: ci
       DB_HOST: p4e-database-ci
       DB_USER: webapp
       DB_PASSWORD: passw0rd

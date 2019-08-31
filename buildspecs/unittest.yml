@@ -1,0 +1,47 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+    commands:
+      - echo Entered the install phase...
+    finally:
+      - echo This always runs even if the update or install command fails
+  pre_build:
+    commands:
+      - echo Entered the pre_build phase...
+    finally:
+      - echo This always runs even if the login command fails
+  build:
+    commands:
+      - echo Entered the build phase...
+      - echo Build started on `date`
+
+      #
+      - docker-compose -f docker-compose-ci.yml up -d
+
+      #
+      - curl -L -O https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
+      - tar zfx dockerize-linux-amd64-v0.6.1.tar.gz
+      - ./dockerize -wait tcp://localhost:5432 -timeout 1m
+
+      #
+      - docker exec -i p4e-database-ci /usr/local/bin/createdb -U webapp webapp_test
+      - docker exec -i p4e-app-ci /bin/bash -c "./bin/cake migrations migrate"
+
+      #
+      - docker exec -i p4e-app-ci ./vendor/bin/phpunit  --configuration phpunit-ci.xml
+    finally:
+      - echo This always runs even if the install command fails
+  post_build:
+    commands:
+      - echo Entered the post_build phase...
+      - docker cp p4e-app-ci:/srv/cms/PHPUNIT-log.xml ./
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - PHPUNIT-log.xml
+  discard-paths: yes
+#cache:
+#  paths:
+#    - '/root/.m2/**/*'

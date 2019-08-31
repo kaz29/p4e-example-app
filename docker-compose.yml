@@ -33,6 +33,7 @@ services:
       DB_ENCODING: UTF8
       DB_TIMEZONE: UTC
       DEBUG: 1
+      TAG: latest
     volumes:
       - ./app:/srv:cached
 

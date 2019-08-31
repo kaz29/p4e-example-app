@@ -1,0 +1,52 @@
+version: 0.2
+
+#env:
+#  variables:
+#    JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
+#  parameter-store:
+#    LOGIN_PASSWORD: /CodeBuild/dockerLoginPassword
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+      python: 3.7
+    commands:
+      - echo Entered the install phase...
+#      - apt-get update -y
+#      - apt-get install python-pip -y
+      - pip install --upgrade awscli
+      - pip install --upgrade boto3
+    finally:
+      - echo This always runs even if the update or install command fails
+  pre_build:
+    commands:
+      - echo Entered the pre_build phase...
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - echo $LOADBARANCER_NAME
+      - export IMAGE_TAG=build-`echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}'`
+      - export SERVICE_NAME=`python ./bin/describe_service.py $LOADBARANCER_NAME`
+      - echo $SERVICE_NAME
+      - printf '{"imageUri":"%s", "serviceName":"%s"}' $REPOSITORY_URL:$IMAGE_TAG $SERVICE_NAME > /tmp/deploy.json
+      - cat /tmp/deploy.json
+    finally:
+      - echo This always runs even if the login command fails
+  build:
+    commands:
+      - echo Entered the build phase...
+      - echo Build started on `date`
+      - docker build -f ./app/Dockerfile --tag $REPOSITORY_URL:$IMAGE_TAG --build-arg HTPASSWD=$HTPASSWD ./app
+    finally:
+      - echo This always runs even if the install command fails
+  post_build:
+    commands:
+      - echo Entered the post_build phase...
+      - docker push $REPOSITORY_URL:$IMAGE_TAG
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - /tmp/deploy.json
+  discard-paths: yes
+#cache:
+#  paths:
+#    - '/root/.m2/**/*'

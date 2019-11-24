@@ -1,0 +1,28 @@
+steps:
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Azure Deployment:Create Azure Container Registry'
+    inputs:
+      azureSubscription: $(SUBSCRIPTION_ENDPOINT_NAME)
+      resourceGroupName: $(RESOURCE_GROUP_NAME)
+      location: 'Japan East'
+      csmFile: '$(System.DefaultWorkingDirectory)/**/containerRegistry-template.json'
+      overrideParameters: '-registryName $(REPOSITORY_NAME) -registryLocation "$(Azure.ACR.RegistryLocation)" -registrySku "$(Azure.ACR.Sku)"'
+
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Azure Deployment:Create Azure Database for PostgreSQL'
+    inputs:
+      azureSubscription: $(SUBSCRIPTION_ENDPOINT_NAME)
+      resourceGroupName: $(RESOURCE_GROUP_NAME)
+      location: 'Japan East'
+      csmFile: '$(System.DefaultWorkingDirectory)/**/database-for-postgres-template.json'
+      csmParametersFile: '$(System.DefaultWorkingDirectory)/**/database-for-postgres-parameters.json'
+      overrideParameters: '-administratorLoginPassword "$(DB_PASSWORD)" -serverName $(DATABASE_SERVER_NAME)'
+
+  - task: AzureResourceGroupDeployment@2
+    displayName: 'Azure Deployment:Create Azure App Service'
+    inputs:
+      azureSubscription: $(SUBSCRIPTION_ENDPOINT_NAME)
+      resourceGroupName: $(RESOURCE_GROUP_NAME)
+      location: 'Japan East'
+      csmFile: '$(System.DefaultWorkingDirectory)/**/container-webapp-template.json'
+      overrideParameters: '-webAppName $(WEBAPP_NAME) -hostingPlanName $(HOSTING_PLAN_NAME) -appInsightsLocation "$(Azure.WebbApp.AppInsightsLocation)" -sku $(Azure.WebbApp.Sku) -skuCode $(Azure.WebbApp.SkuCode) -registryName $(REPOSITORY_NAME) -registryLocation "$(Azure.ACR.RegistryLocation)" -registrySku $(Azure.ACR.Sku) -imageName $(ImageName):$(Build.BuildId) -databaseServerName $(DATABASE_SERVER_NAME) -databaseName $(Azure.Database.Name) -dbPassword $(DB_PASSWORD)'

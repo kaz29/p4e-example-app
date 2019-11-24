@@ -1,0 +1,99 @@
+
+name: p4e-example-app
+
+trigger:
+  - master
+
+variables:
+  - group: php-for-everyone
+  - name: Azure.CreateResources
+    value: 'true' # Update Azure.CreateResources to false if you have already created resources like resource group and azure container registry.
+  - name: ImageName
+    value: p4eexampleapp
+  - name: Azure.Location
+    value: 'Japan East'
+  - name: Azure.ACR.RegistryLocation
+    value: 'Japan East'
+  - name: Azure.ACR.Sku
+    value: Standard
+  - name: Azure.WebbApp.AppInsightsLocation
+    value: 'Japan East'
+  - name: Azure.WebbApp.Sku
+    value: Standard
+  - name: Azure.WebbApp.SkuCode
+    value: S1
+  - name: Azure.Database.Name
+    value: webapp
+
+stages:
+# --- ここから
+  - stage: CreateResources
+    jobs:
+      - job: CreateResources
+        displayName: Create resources
+        condition: and(succeeded(), eq(variables['Azure.CreateResources'], 'true'))
+        pool:
+          vmImage: 'Ubuntu-16.04'
+        steps:
+          - template: templates/createresources-steps.yml
+# --- ここまで
+
+  - stage: UnitTest
+    jobs:
+      - job: UnitTest
+        displayName: UnitTest
+        condition: succeeded()
+        pool:
+          vmImage: 'Ubuntu-16.04'
+        steps:
+          - template: templates/unittest-steps.yml
+
+  - stage: Build
+    jobs:
+      - job: Build
+        displayName: Build
+        condition: succeeded()
+        pool:
+          vmImage: 'Ubuntu-16.04'
+        variables:
+          - group: php-for-everyone
+        steps:
+          - template: templates/build-steps.yml
+
+  - stage: Staging
+    jobs:
+      - deployment: Deploy
+        pool:
+          vmImage: 'Ubuntu-16.04'
+        environment: '$(WEBAPP_NAME)-staging'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureWebAppContainer@1
+                  inputs:
+                    azureSubscription: $(SUBSCRIPTION_ENDPOINT_NAME)
+                    appName: $(WEBAPP_NAME)
+                    resourceGroupName: $(RESOURCE_GROUP_NAME)
+                    containers: '$(REPOSITORY_NAME).azurecr.io/$(ImageName):$(Build.BuildId)'
+                    slotName: 'staging'
+                    deployToSlotOrASE: true
+
+  - stage: Production
+    jobs:
+      - deployment: Deploy
+        pool:
+          vmImage: 'Ubuntu-16.04'
+        environment: '$(WEBAPP_NAME)-production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureAppServiceManage@0
+                  displayName: 'Swap Slots'
+                  inputs:
+                    azureSubscription: $(SUBSCRIPTION_ENDPOINT_NAME)
+                    WebAppName: $(WEBAPP_NAME)
+                    ResourceGroupName: $(RESOURCE_GROUP_NAME)
+                    SourceSlot: staging
+                    SwapWithProduction: true

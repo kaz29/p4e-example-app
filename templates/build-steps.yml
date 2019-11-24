@@ -1,0 +1,29 @@
+steps:
+  - task: Docker@1
+    displayName: 'Build an image'
+    inputs:
+      azureSubscriptionEndpoint: $(SUBSCRIPTION_ENDPOINT_NAME)
+      azureContainerRegistry: '$(REPOSITORY_NAME).azurecr.io'
+      arguments: '--build-arg HTPASSWD=$(HTPASSWD)'
+      imageName: '$(ImageName):$(Build.BuildId)'
+      command: build
+
+  - task: Docker@1
+    displayName: 'Push an image'
+    inputs:
+      azureSubscriptionEndpoint: $(SUBSCRIPTION_ENDPOINT_NAME)
+      azureContainerRegistry: '$(REPOSITORY_NAME).azurecr.io'
+      command: 'push'
+      imageName: '$(ImageName):$(Build.BuildId)'
+
+  - task: CopyFiles@2
+    displayName: 'Copy ARM templates'
+    inputs:
+      SourceFolder: ArmTemplates
+      TargetFolder: '$(build.artifactstagingdirectory)'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact'
+    inputs:
+      PathtoPublish: '$(build.artifactstagingdirectory)'
+

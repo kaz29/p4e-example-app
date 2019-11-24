@@ -1,0 +1,19 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+SetEnvIf Request_URI "^/readiness.php" noauth
+AuthUserFile /srv/.htpasswd
+AuthName "Authentication required"
+AuthType Basic
+require valid-user
+Satisfy any
+Order Deny,Allow
+Deny from all
+Allow from env=noauth
+
+<Files ~ "^.(htpasswd|htaccess)$">
+    Require all denied
+</Files>

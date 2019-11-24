@@ -56,13 +56,13 @@ header.row {
 
 header .header-image {
     text-align: center;
-    padding: 64px 0;
+    padding: 32px 0;
 }
 
 header .header-title {
     padding: 0;
     display: block;
-    background: #404041;
+    background: #3e4680;
     text-align: center;
 }
 
@@ -70,9 +70,9 @@ header .header-title h1 {
     font-family: 'Raleway', sans-serif;
     margin: 0;
     font-style: italic;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 500;
-    padding: 18px 30px;
+    padding: 8px 30px;
     color: #DEDED5;
 }
 

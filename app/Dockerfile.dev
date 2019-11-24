@@ -1,4 +1,4 @@
-FROM kaz29/php-apache:7.3.8
+FROM kaz29/php-apache:7.3.10
 
 ENV APACHE_CONFDIR /etc/apache2
 ENV APACHE_ENVVARS $APACHE_CONFDIR/envvars

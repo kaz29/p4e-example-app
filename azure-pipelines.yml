@@ -27,15 +27,15 @@ variables:
 
 stages:
 # --- ここから
-  - stage: CreateResources
-    jobs:
-      - job: CreateResources
-        displayName: Create resources
-        condition: and(succeeded(), eq(variables['Azure.CreateResources'], 'true'))
-        pool:
-          vmImage: 'Ubuntu-16.04'
-        steps:
-          - template: templates/createresources-steps.yml
+# - stage: CreateResources
+#   jobs:
+#     - job: CreateResources
+#       displayName: Create resources
+#       condition: and(succeeded(), eq(variables['Azure.CreateResources'], 'true'))
+#       pool:
+#         vmImage: 'Ubuntu-16.04'
+#       steps:
+#         - template: templates/createresources-steps.yml
 # --- ここまで
 
   - stage: UnitTest

@@ -23,7 +23,7 @@ COPY cms/composer.json cms/composer.lock /srv/cms/
 
 RUN composer install --working-dir=/srv/cms --no-dev
 COPY cms /srv/cms
-COPY config/.htaccess /srv/cms/webroot/
+# COPY config/.htaccess /srv/cms/webroot/
 
 RUN echo export BUILD_TIME=`date "+%Y/%m/%d %H:%M:%S"` > /srv/cms/config/.env
 

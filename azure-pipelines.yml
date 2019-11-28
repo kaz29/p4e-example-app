@@ -3,6 +3,7 @@ name: p4e-example-app
 
 trigger:
   - master
+  - no_create_resource
 
 variables:
   - group: php-for-everyone

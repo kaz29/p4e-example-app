@@ -11,9 +11,9 @@ export class RepositoryStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: RepositoryStackProps) {
     super(scope, id, props);
 
-    const repofitoryName = `${config.app.project_name}-ecr`;
-    this.repository = new Repository(this, repofitoryName, {
-      repositoryName: repofitoryName,
+    const repositoryName = `${config.app.project_name}-ecr`;
+    this.repository = new Repository(this, repositoryName, {
+      repositoryName: repositoryName,
       lifecycleRules: [
         {
           rulePriority: 10,
